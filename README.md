@@ -49,6 +49,167 @@ Unlike the Black-Scholes model, the Variance Gamma framework captures **non-norm
 
 # ⚙ Mathematical Framework
 
+---
+
+# 🧮 Mathematical Foundation
+
+The pricing engine combines ideas from **stochastic calculus**, **risk-neutral valuation**, and **Fourier analysis** to efficiently compute European option prices. Rather than relying solely on the assumptions of the Black-Scholes framework, it employs the Variance Gamma process together with the Carr-Madan FFT algorithm to model realistic asset return dynamics.
+
+## 1. Stochastic Calculus and Asset Price Dynamics
+
+Financial asset prices are commonly represented using stochastic differential equations, where randomness is introduced through Brownian motion. Several mathematical concepts provide the theoretical basis for this formulation.
+
+| Concept | Role in Option Pricing |
+|---------|------------------------|
+| **Brownian Motion** | Models the continuous random evolution of asset prices. |
+| **Itô Integral** | Defines integration with respect to stochastic processes whose paths are nowhere differentiable. |
+| **Itô's Lemma** | Extends the classical chain rule to stochastic processes and forms the basis of derivative pricing. |
+| **Martingale Theory** | Under the risk-neutral measure, discounted asset prices evolve as martingales. |
+| **Quadratic Variation** | Captures the accumulated variance of Brownian motion and is essential in stochastic calculus. |
+
+These concepts establish the mathematical framework from which modern option pricing models are derived.
+
+---
+
+## 2. Black-Scholes-Merton Model
+
+Using Itô's Lemma together with the principle of no-arbitrage, the Black-Scholes-Merton framework leads to the celebrated partial differential equation governing European option prices:
+
+\[
+\frac{\partial V}{\partial t}
++
+\frac{1}{2}\sigma^2S^2
+\frac{\partial^2V}{\partial S^2}
++
+rS
+\frac{\partial V}{\partial S}
+-
+rV
+=
+0
+\]
+
+Its analytical solution for a European call option is
+
+\[
+C
+=
+S_0N(d_1)
+-
+Ke^{-rT}N(d_2)
+\]
+
+where
+
+\[
+d_1=
+\frac{\ln(S_0/K)+\left(r+\frac{\sigma^2}{2}\right)T}
+{\sigma\sqrt{T}},
+\qquad
+d_2=d_1-\sigma\sqrt{T}.
+\]
+
+Although computationally efficient, this model assumes **constant volatility** and **log-normal returns**, making it unable to reproduce important market phenomena such as asymmetric returns and the volatility smile.
+
+---
+
+## 3. Variance Gamma Process
+
+To overcome these limitations, the project adopts the **Variance Gamma (VG) process**, which models asset returns by evaluating Brownian motion over a random Gamma time clock.
+
+Compared with the Black-Scholes model, the VG process naturally captures:
+
+- **Skewness (\(\theta\))**, allowing asymmetric return distributions.
+- **Kurtosis (\(\nu\))**, producing heavier tails than the normal distribution.
+- More realistic pricing of deep in-the-money and out-of-the-money options.
+
+The characteristic function of the Variance Gamma process is given by
+
+\[
+\phi_{VG}(u)
+=
+\left(
+1
+-
+iu\theta\nu
++
+\frac{\sigma^2\nu u^2}{2}
+\right)^{-T/\nu}.
+\]
+
+Unlike the probability density function, this characteristic function has a simple closed-form representation, making it well suited for Fourier-based pricing techniques.
+
+---
+
+## 4. Carr-Madan Fourier Pricing Method
+
+Instead of evaluating option prices directly from the probability density function, the Carr-Madan approach operates in the **frequency domain** using the characteristic function.
+
+### Step 1 — Exponential Damping
+
+Since the call payoff is not square-integrable, an exponential damping factor is introduced to stabilize the Fourier transform.
+
+The transformed pricing function becomes
+
+\[
+\psi(v)
+=
+\frac{
+e^{-rT}
+\phi\!\left(v-(\alpha+1)i\right)
+}{
+\alpha^2+\alpha-v^2+i(2\alpha+1)v
+}.
+\]
+
+Here, the parameter \(\alpha\) controls the damping and ensures numerical convergence.
+
+---
+
+### Step 2 — Numerical Approximation
+
+The inverse Fourier transform is discretized using **Simpson's Rule**, replacing the continuous integral with a finite weighted summation over the frequency grid.
+
+The resulting approximation is
+
+\[
+C(k_u)
+\approx
+\frac{e^{-\alpha k_u}}{\pi}
+\sum_{j=1}^{N}
+e^{-i\frac{2\pi}{N}(j-1)(u-1)}
+e^{ibv_j}
+\psi(v_j)
+\frac{\eta}{3}
+\left[
+3+(-1)^j-\delta_{j-1}
+\right].
+\]
+
+This formulation substantially improves numerical accuracy before applying the FFT.
+
+---
+
+### Step 3 — Fast Fourier Transform
+
+To exploit the computational efficiency of the FFT, the strike and frequency grids are selected such that
+
+\[
+\lambda\eta
+=
+\frac{2\pi}{N}.
+\]
+
+This relationship aligns the numerical summation with the structure of the Discrete Fourier Transform, allowing option prices for **thousands of strike prices** to be evaluated simultaneously with computational complexity
+
+\[
+O(N\log N),
+\]
+
+rather than computing each strike individually.
+
+---
+
 ## Characteristic Function
 
 Instead of working directly with the probability density function, the Variance Gamma model uses its characteristic function, which admits a closed-form expression and is well suited for Fourier-based pricing methods.
