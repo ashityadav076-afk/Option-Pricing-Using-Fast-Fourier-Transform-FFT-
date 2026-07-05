@@ -130,38 +130,10 @@ Option-Pricing-FFT/
 Clone the repository
 
 ```bash
-git clone https://github.com/your-username/Option-Pricing-FFT.git
+git clone[https://github.com/ashityadav076-afk/Option-Pricing-Using-Fast-Fourier-Transform-FFT-]
 ```
 
-Move into the project directory
 
-```bash
-cd Option-Pricing-FFT
-```
-
-Install the required packages
-
-```bash
-pip install streamlit numpy pandas scipy
-```
-
----
-
-# ▶ Running the Application
-
-Launch the Streamlit application
-
-```bash
-streamlit run Pricing_Engine.py
-```
-
-The application will start locally and can typically be accessed at
-
-```
-http://localhost:8501
-```
-
----
 
 # 📊 Dashboard Features
 
@@ -232,7 +204,3 @@ B.Tech, Civil Engineering
 Indian Institute of Technology Kanpur (IIT Kanpur)
 
 ---
-
-## ⭐ Support
-
-If you found this project useful or interesting, consider giving the repository a **Star ⭐**.
