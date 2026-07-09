@@ -182,7 +182,7 @@ This project followed a structured 10-week curriculum:
 
 ## 📬 Contact
 
-**Prince Agarwal**
+**Ashit Yadav**
 B.Tech, IIT Kanpur
-📧 kprince24@iitk.ac.in
+📧 ashity24@iitk.ac.in
 
